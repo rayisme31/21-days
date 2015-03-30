@@ -1,0 +1,7 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.ray.anshuman.blank21.HabitProgressActivity">
+    <item android:id="@+id/action_deletehabit" app:showAsAction="always"
+        android:icon="@drawable/ic_action_deletehabit" android:title="Delete Habit"/>
+</menu>
