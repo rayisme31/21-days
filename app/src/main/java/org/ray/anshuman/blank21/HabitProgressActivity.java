@@ -11,44 +11,52 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 
 public class HabitProgressActivity extends ActionBarActivity {
 
-    int HabitIndex,DaysLeft;
+    int habitNo,DaysLeft;
     String habit;
+    ArrayList<String> habits;
+    ArrayList<Integer> habitNos;
+    ArrayList<Integer> habitDays;
     TextView tvhabit,tvdaysleft;
     TinyDB tinyDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_habit_progress);
+
         tinyDB = new TinyDB(getApplicationContext());
+        habits = tinyDB.getList("Habits");
+        habitNos = tinyDB.getListInt("HabitNos");
+        habitDays = tinyDB.getListInt("HabitDays");
+
         tvhabit = (TextView) findViewById(R.id.textViewhabit);
         tvdaysleft = (TextView) findViewById(R.id.textViewdaysleft);
+
         Intent intent = getIntent();
-        HabitIndex = intent.getIntExtra(AddHabitActivity.HABITINDEX, 0);
-        habit = tinyDB.getString(HabitIndex + "Habit");
-        DaysLeft = tinyDB.getInt(HabitIndex+"DaysLeft");
-        tvhabit.setText(habit);
+        habitNo = intent.getIntExtra(AddHabitActivity.HABITINDEX, 0);
+        tvhabit.setText(habits.get(habitNos.indexOf(habitNo)));
+        DaysLeft = habitDays.get(habitNos.indexOf(habitNo));
         tvdaysleft.setText(DaysLeft+"");
     }
 
     public void yep(View view){
         DaysLeft--;
         tvdaysleft.setText(DaysLeft+"");
-        tinyDB.putInt(HabitIndex+"DaysLeft",DaysLeft);
+        habitDays.set(habitNos.indexOf(habitNo),DaysLeft);
+        saveState();
         Toast("Awesome! Good going.");
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 
     public void nope(View view){
         DaysLeft++;
         tvdaysleft.setText(DaysLeft+"");
-        tinyDB.putInt(HabitIndex+"DaysLeft",DaysLeft);
+        habitDays.set(habitNos.indexOf(habitNo),DaysLeft);
+        saveState();
         Toast("Urgh, That's bad.");
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -67,8 +75,13 @@ public class HabitProgressActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_deletehabit) {
-            tinyDB.putString(HabitIndex+"Habit","Deleted habit");
-            tinyDB.putInt(HabitIndex+"DaysLeft",-1);
+//            tinyDB.remove(HabitIndex + "Habit");
+//            tinyDB.remove(HabitIndex + "DaysLeft");
+            int temp = habitNos.indexOf(habitNo);
+            habitNos.remove(temp);
+            habits.remove(temp);
+            habitDays.remove(temp);
+            saveState();
             Toast("Habit deleted");
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
@@ -79,5 +92,11 @@ public class HabitProgressActivity extends ActionBarActivity {
     }
     public void Toast(String msg){
         Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+    }
+
+    private void saveState(){
+        tinyDB.putListInt("HabitNos",habitNos);
+        tinyDB.putList("Habits",habits);
+        tinyDB.putListInt("HabitDays",habitDays);
     }
 }

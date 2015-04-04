@@ -20,6 +20,8 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 
 public class AddHabitActivity extends ActionBarActivity {
 
@@ -27,9 +29,13 @@ public class AddHabitActivity extends ActionBarActivity {
     EditText editTexthabit;
     TimePicker timePicker;
     String habit;
+    ArrayList<String> habits;
+    ArrayList<Integer> habitNos;
+    ArrayList<Integer> habitDays;
+    ArrayList<Integer> habitTimes;
     Long time;
     TinyDB tinyDB;
-    int HabitIndex;
+//    int HabitIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +43,11 @@ public class AddHabitActivity extends ActionBarActivity {
         setContentView(R.layout.activity_add_habit);
 
         tinyDB = new TinyDB(getApplicationContext());
-        HabitIndex = tinyDB.getInt("MaxHabitIndex");
+        habits = tinyDB.getList("Habits");
+        habitNos = tinyDB.getListInt("HabitNos");
+        habitDays = tinyDB.getListInt("HabitDays");
+        habitDays = tinyDB.getListInt("HabitDays");
+        
         editTexthabit = (EditText) findViewById(R.id.editTexthabit);
         timePicker = (TimePicker) findViewById(R.id.timePicker);
     }
@@ -73,10 +83,16 @@ public class AddHabitActivity extends ActionBarActivity {
         int MM = timePicker.getCurrentMinute();
         time = ((long) (HH*60+MM)*60*60);
         // TODO Implement multiple habit storage
-        HabitIndex++;
-        tinyDB.putString(HabitIndex+"Habit", habit);
-        tinyDB.putInt("MaxHabitIndex",HabitIndex);
-        tinyDB.putInt(HabitIndex+"DaysLeft",21);
+//        HabitIndex++;
+//        tinyDB.putString(HabitIndex+"Habit", habit);
+//        tinyDB.putInt("MaxHabitIndex",HabitIndex);
+//        tinyDB.putInt(HabitIndex+"DaysLeft",21);
+        habitNos.add(habits.size());
+        habits.add(habit);
+        habitDays.add(21);
+        tinyDB.putListInt("HabitNos", habitNos);
+        tinyDB.putList("Habits",habits);
+        tinyDB.putListInt("HabitDays",habitDays);
 
         // Notify User
         NotificationCompat.Builder mBuilder =
@@ -85,16 +101,16 @@ public class AddHabitActivity extends ActionBarActivity {
                         .setContentTitle("21 Days!")
                         .setContentText(habit)
                         .setPriority(2);
-        // Creates an explicit intent for an Activity in your app
+
         Intent resultIntent = new Intent(this, HabitProgressActivity.class);
-        resultIntent.putExtra(HABITINDEX,HabitIndex);
+        resultIntent.putExtra(HABITINDEX,habitNos.size()-1);
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
         // This ensures that navigating backward from the Activity leads out of
         // your application to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(HabitProgressActivity.class);
+        stackBuilder.addParentStack(MainActivity.class);
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
@@ -105,7 +121,7 @@ public class AddHabitActivity extends ActionBarActivity {
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(HabitIndex, mBuilder.build());
+        mNotificationManager.notify(habits.size(), mBuilder.build());
 
 //        Toast(time.toString());
         goToMain();
