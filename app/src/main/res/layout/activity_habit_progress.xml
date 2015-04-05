@@ -72,7 +72,28 @@
         android:text="Days left:"
         android:id="@+id/textView2"
         android:textSize="30dp"
-        android:layout_above="@+id/textViewdaysleft"
+        android:layout_alignBaseline="@+id/textViewdaysleft"
+        android:layout_alignBottom="@+id/textViewdaysleft"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Reminders at"
+        android:id="@+id/textViewtimelabel"
+        android:layout_below="@+id/textView5"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="HH:MM"
+        android:id="@+id/textViewtime"
+        android:layout_below="@+id/textViewtimelabel"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

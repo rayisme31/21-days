@@ -1,7 +1,10 @@
 package org.ray.anshuman.blank21;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,25 +20,21 @@ import java.util.ArrayList;
 public class MainActivity extends ActionBarActivity {
 
     TinyDB tinyDB;
-    String habit;
     ArrayList<String> habits;
     ArrayList<Integer> habitNos;
     ListView lvhabits;
-    int HabitIndex;
-    ArrayList<String> habitsList;
-    ArrayList<Integer> indexList;
+    AlarmReceiver alarm = new AlarmReceiver();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         tinyDB = new TinyDB(getApplicationContext());
-//        HabitIndex = tinyDB.getInt("MaxHabitIndex");
-//        Toast(HabitIndex+"");
         lvhabits = (ListView) findViewById(R.id.listViewhabits);
         habits = tinyDB.getList("Habits");
         habitNos = tinyDB.getListInt("HabitNos");
-//        indexList = new ArrayList<Integer>();
-//        getHabitList();
+
         if(habits.size() == 0) Toast("No habits saved. Add a new one!");
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, habits);
         lvhabits.setAdapter(arrayAdapter);
@@ -50,11 +49,6 @@ public class MainActivity extends ActionBarActivity {
                 }
             });
         }
-
-
-        // Fetch HABIT from tinyDB
-        habit = tinyDB.getString(HabitIndex+"Habit");
-        if (habit == "") habit = "No saved habits.";
     }
 
 
@@ -77,10 +71,6 @@ public class MainActivity extends ActionBarActivity {
             goToAddHabit();
             return true;
         }
-        else if (id == R.id.action_settings){
-            tinyDB.clear();
-            Toast("All habits deleted!");
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -90,30 +80,6 @@ public class MainActivity extends ActionBarActivity {
         startActivity(intent);
     }
 
-//    void getHabitList(){
-//        String temp;
-//        int j = 0;
-//        if (HabitIndex > 0)
-//            for (int i = 1; i<=HabitIndex; i++) {
-//                if (tinyDB.getInt(i + "DaysLeft") != -1) {
-////                    Toast(tinyDB.getInt(i+"DaysLeft")+"");
-//                    habitsList.add(++j+". "+tinyDB.getString(i+"Habit"));
-//                    indexList.add(i);
-//                }
-//            }
-//        else
-//            habitsList.add("No habits added yet.");
-
-//        if(habits.size() >= 0){
-//            for (int i=0; i<habits.size();i++) {
-//                habitsList.add(i+". "+habits.get(i));
-//                indexList.add(i);
-//            }
-//        }
-//        else {
-//            habitsList.add("No habits added yet.");
-//        }
-//    }
 
     public void Toast(String msg){
         Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();

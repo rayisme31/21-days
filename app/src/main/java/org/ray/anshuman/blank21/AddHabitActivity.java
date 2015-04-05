@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Parcel;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class AddHabitActivity extends ActionBarActivity {
@@ -33,9 +35,10 @@ public class AddHabitActivity extends ActionBarActivity {
     ArrayList<Integer> habitNos;
     ArrayList<Integer> habitDays;
     ArrayList<Integer> habitTimes;
+    int habitNo = -1;
     Long time;
     TinyDB tinyDB;
-//    int HabitIndex;
+    AlarmReceiver alarm = new AlarmReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +49,9 @@ public class AddHabitActivity extends ActionBarActivity {
         habits = tinyDB.getList("Habits");
         habitNos = tinyDB.getListInt("HabitNos");
         habitDays = tinyDB.getListInt("HabitDays");
-        habitDays = tinyDB.getListInt("HabitDays");
-        
+        habitTimes = tinyDB.getListInt("HabitTimes");
+        if (habitNos.size() != 0) habitNo = habitNos.get(habitNos.size()-1);
+
         editTexthabit = (EditText) findViewById(R.id.editTexthabit);
         timePicker = (TimePicker) findViewById(R.id.timePicker);
     }
@@ -81,49 +85,17 @@ public class AddHabitActivity extends ActionBarActivity {
         habit = editTexthabit.getText().toString();
         int HH = timePicker.getCurrentHour();
         int MM = timePicker.getCurrentMinute();
-        time = ((long) (HH*60+MM)*60*60);
-        // TODO Implement multiple habit storage
-//        HabitIndex++;
-//        tinyDB.putString(HabitIndex+"Habit", habit);
-//        tinyDB.putInt("MaxHabitIndex",HabitIndex);
-//        tinyDB.putInt(HabitIndex+"DaysLeft",21);
-        habitNos.add(habits.size());
+
+        habitNo++;
+        habitNos.add(habitNo);
         habits.add(habit);
         habitDays.add(21);
+        habitTimes.add(HH*100+MM);
         tinyDB.putListInt("HabitNos", habitNos);
         tinyDB.putList("Habits",habits);
         tinyDB.putListInt("HabitDays",habitDays);
-
-        // Notify User
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("21 Days!")
-                        .setContentText(habit)
-                        .setPriority(2);
-
-        Intent resultIntent = new Intent(this, HabitProgressActivity.class);
-        resultIntent.putExtra(HABITINDEX,habitNos.size()-1);
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(MainActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(habits.size(), mBuilder.build());
-
-//        Toast(time.toString());
+        tinyDB.putListInt("HabitTimes",habitTimes);
+        alarm.setAlarm(this,habitNo,HH,MM);
         goToMain();
     }
 
