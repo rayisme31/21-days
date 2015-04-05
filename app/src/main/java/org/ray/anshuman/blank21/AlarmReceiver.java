@@ -88,7 +88,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         // Set the alarm to fire at approximately 8:30 a.m., according to the device's
         // clock, and to repeat once a day.
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(), 1000 * 60 * 5, alarmIntent);
+                calendar.getTimeInMillis(), 1000 * 60 * 60 * 24, alarmIntent);
         // Enable {@code SampleBootReceiver} to automatically restart the alarm when the
         // device is rebooted.
 //        ComponentName receiver = new ComponentName(context, SampleBootReceiver.class);
